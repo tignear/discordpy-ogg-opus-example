@@ -37,7 +37,6 @@ class OggOpusAudioSource(discord.AudioSource):
         self.stream = OpusBufferStream(data)
         self.buf = bytearray()
         # 48000hz*2bytes*(channel_count=mono or stereo)*(20ms=20/1000s)
-        print(self.stream.channels)
         self.output_size = 48000*2*self.stream.channels*20//1000
 
     def _load(self):
@@ -49,20 +48,16 @@ class OggOpusAudioSource(discord.AudioSource):
         self.buf += buf
 
     def read(self):
-        s = time.perf_counter()
         while len(self.buf) < self.output_size:
             if self._load() is None:
                 break
         r = self.buf[:self.output_size]
         del self.buf[:self.output_size]
-        m = time.perf_counter()
         if self.stream.channels == 2:
             x = bytes(r)
         else:
             x = bytes(chain.from_iterable(
                 [[a, b, a, b] for a, b in ShortItr(r)]))
-        e = time.perf_counter()
-        print(e-s, e-m, m-s)
         return x
 
     def close(self):
