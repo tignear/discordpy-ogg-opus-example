@@ -9,18 +9,23 @@ f = open('sound-mono.opus', 'rb')
 d = f.read()
 f.close()
 
+
 class ShortItr():
-    def __init__(self,data):
+    def __init__(self, data):
         self.data = data
         self.idx = 0
+
     def __iter__(self):
         return self
+
     def __next__(self):
         if self.idx == len(self.data):
             raise StopIteration()
         idx = self.idx
-        self.idx+=2
-        return (self.data[idx],self.data[idx+1])
+        self.idx += 2
+        return (self.data[idx], self.data[idx+1])
+
+
 class OggOpusAudioSource(discord.AudioSource):
     """
 
@@ -54,10 +59,12 @@ class OggOpusAudioSource(discord.AudioSource):
         if self.stream.channels == 2:
             x = bytes(r)
         else:
-            x = bytes(chain.from_iterable([[a,b,a,b] for a,b in ShortItr(r)]))
+            x = bytes(chain.from_iterable(
+                [[a, b, a, b] for a, b in ShortItr(r)]))
         e = time.perf_counter()
-        print(e-s,e-m,m-s)
+        print(e-s, e-m, m-s)
         return x
+
     def close(self):
         if self.stream is not None:
             self.stream.close()
